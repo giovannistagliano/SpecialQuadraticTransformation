@@ -1,0 +1,22 @@
+load "bir.m2";
+load "equationsOfSj.m2";
+for j to 3 do ringTarget_j=kk[y_0..y_(11-j)];
+for j to 3 do phi'_j=map(ringP7,ringTarget_j,gens idealS_j);
+for j to 3 do if j>1 then phi'Im_j=trim kernel phi'_j else 
+              phi'Im_j=saturate ideal homogPartOfImage(phi'_j,2+j);
+for j to 3 list degrees phi'Im_j 
+for j to 3 do D_j=phi'Im_j_(3-j);
+for j to 3 do Z_j=submatrix'(gens phi'Im_j,,{3-j});
+for j to 3 do omega_j=invertBirationalMapRS(matrix phi'_j,phi'Im_j);
+for j to 3 do eta_j=omega_j|D_j;
+for j to 3 list degrees ideal eta_j
+File2 := openOut "inversesOfRestrictions.m2"; 
+File2 <<"kk="<<toExternalString kk<<";"<<endl;  
+for j to 3 do (
+File2 <<"ringTarget_"<<j<<"=kk[y_0..y_(11-"<<j<<")];"<<endl;
+File2 <<"Z_"<<j<<"="<<toString Z_j<<";"<<endl; 
+File2 <<"D_"<<j<<"="<<toString D_j<<";"<<endl; 
+File2 <<"eta_"<<j<<"="<<toString eta_j<<";"<<endl);
+close File2;  
+---
+exit

@@ -1,0 +1,93 @@
+kk=QQ; 
+ringP2=kk[t_0..t_2]; 
+ringP3=kk[z_0..z_3]; ringP5=kk[z_0..z_5];
+ringP14=kk[z_0..z_14]; ringP17=kk[z_0..z_17]; 
+ringP19=kk[z_0..z_19]; ringP20=kk[z_0..z_20];
+-- Case j=0:
+-- emb4P2 is the 4-uple embedding of P^2 
+emb4P2=map(ringP2,ringP14,gens (ideal vars ringP2)^4);
+v_0=emb4P2;
+-- Case j=1:
+-- tau parameterizes a quadric surface 
+tau=map(ringP2,ringP3,matrix{{t_2*vars(ringP2),t_0*t_1}});
+-- emb3P3 is the 3-uple embedding of P^3 
+emb3P3=map(ringP3,ringP19,gens (ideal vars ringP3)^3);
+p=tau*emb3P3; 
+ringP15=ringP19/(ideal image basis(1,saturate kernel p));
+v_1=map(ringP2,ringP15,matrix p); 
+-- Case j=2:
+-- the image of v_2 is the Hirzebruch surface F_1
+-- embedded in P^17 by the very ample divisor 3C_0+5f 
+v_2=map(ringP2,ringP17, {
+t_1^2*t_2^3,t_0*t_1*t_2^3,t_0^2*t_2^3,t_1^3*t_2^2,
+t_0*t_1^2*t_2^2,t_0^2*t_1*t_2^2,t_0^3*t_2^2,t_1^4*t_2,
+t_0*t_1^3*t_2,t_0^2*t_1^2*t_2,t_0^3*t_1*t_2,t_0^4*t_2,
+t_1^5,t_0*t_1^4,t_0^2*t_1^3,t_0^3*t_1^2,t_0^4*t_1,t_0^5}); 
+-- Case j=3: 
+-- theta parameterizes a del Pezzo surface of degree 5
+theta=map(ringP2,ringP5,gens image basis(3,intersect(
+      ideal(t_0,t_1),ideal(t_1,t_2),
+      ideal(t_2,t_0),ideal(t_0-t_1,t_2-t_0))));
+-- emb2P5 is the 2-uple embedding of P^5
+emb2P5=map(ringP5,ringP20,gens (ideal vars ringP5)^2);
+p'=theta*emb2P5; 
+ringP15'=ringP20/(ideal image basis(1,saturate kernel p'));  
+v_3=map(ringP2,ringP15',matrix p');   
+---
+-- s = (j)->(if j==0 then return 7 else if j==2 then return 10 else return 8); 
+-- for j to 3 do pts_j=(for i to s(j)-1 list ideal(random(1,ringP2),random(1,ringP2)));
+---
+pts_0={ideal(t_1,t_0),ideal(t_2,t_0),
+ideal(t_2,t_1),ideal(t_1-t_2,t_0),
+ideal(t_1,t_0-t_2),ideal(t_2,t_0-t_1),
+ideal(t_1-t_2,t_0-t_2)};
+pts_1={ideal(t_1+t_2,t_0+2*t_2),
+ideal(2*t_1-t_2,t_0+6*t_2),
+ideal(t_1-3*t_2,t_0-3*t_2),
+ideal(t_1-4*t_2,t_0+3*t_2),
+ideal(3*t_1-t_2,t_0+t_2),
+ideal(t_1-t_2,5*t_0+3*t_2),
+ideal(t_1,5*t_0-6*t_2),
+ideal(2*t_1-3*t_2,t_0+6*t_2)};
+pts_2={ideal(5*t_1-6*t_2,2*t_0+3*t_2),
+ideal(8*t_1+3*t_2,32*t_0+9*t_2),
+ideal(25*t_1-9*t_2,15*t_0-2*t_2),
+ideal(12*t_1-5*t_2,36*t_0-25*t_2),
+ideal(12*t_1-7*t_2,216*t_0+7*t_2),
+ideal(5*t_1+27*t_2,2*t_0+27*t_2),
+ideal(56*t_1+5*t_2,56*t_0+15*t_2),
+ideal(5*t_1+6*t_2,10*t_0-9*t_2),
+ideal(21*t_1+4*t_2,21*t_0-4*t_2),
+ideal(t_1-6*t_2,t_0+7*t_2)};
+pts_3={ideal(15*t_1+7*t_2,3*t_0-2*t_2),
+ideal(8*t_1+11*t_2,2*t_0+t_2),
+ideal(15*t_1-14*t_2,3*t_0+5*t_2),
+ideal(3*t_1-t_2,9*t_0+2*t_2),
+ideal(3*t_1-4*t_2,3*t_0-4*t_2),
+ideal(3*t_1-t_2,15*t_0+13*t_2),
+ideal(t_1,2*t_0-3*t_2),
+ideal(9*t_1-7*t_2,9*t_0+5*t_2)}; 
+---
+ringP7=kk[x_0..x_7];
+-- U_j is the ideal of the union of the images of the s_j points 
+for j to 3 do U_j=preimage(v_j,intersect pts_j);
+for j to 3 do linSpanU_j=ideal image basis(1,U_j);
+for j to 3 do psi_j=v_j*map(source v_j,ringP7,gens linSpanU_j);
+---
+for j to 3 do idealS_j=saturate kernel psi_j;
+for j to 3 list codim idealS_j
+for j to 3 list degree idealS_j
+for j to 3 list numgens idealS_j
+for j to 3 list max degrees idealS_j
+for j to 3 list min degrees idealS_j
+---
+load "bir.m2";
+for j to 3 list isSmooth(idealS_j,Use=>Singular,reduceToChar=>41)
+---
+File1 := openOut "equationsOfSj.m2"; 
+File1 <<"kk="<<toExternalString kk<<";"<<endl<<"ringP7=kk[x_0..x_7];"<<endl;
+for j to 3 do  
+File1 <<"idealS_"<<j<<"="<<toString idealS_j<<";"<<endl;
+close File1; 
+---
+exit

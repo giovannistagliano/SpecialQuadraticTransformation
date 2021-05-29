@@ -1,0 +1,91 @@
+load "bir.m2";
+load "inversesOfRestrictions.m2"; 
+ringP8=kk[x_0..x_8];
+O=ideal ringP8;
+phi_3=invertBirationalMapRS(eta_3,O);
+idealB_3=ideal phi_3;
+----------------
+File3 := openOut "equationsOfBj.m2"; 
+File3 <<"kk="<<toExternalString kk<<"; ";  
+File3 <<"ringP8=kk[x_0..x_8];"<<endl;
+File3 <<"idealB_3="<<toString idealB_3<<";"<<endl;
+File3 <<"ringTarget_3=kk[y_0..y_8];"<<endl;
+File3 <<"phi_3=map(ringP8,ringTarget_3,gens idealB_3);"<<endl;
+File3 <<"Z_3=ideal ringTarget_3;"<<endl;
+File3 <<"eta_3=map(ringTarget_3,ringP8,"<<toString eta_3<<");"<<endl;
+close File3; 
+----------------
+-- p is a nonsingular point of the quadric Z_2
+p=ideal submatrix'(vars ringTarget_2,{2});
+isSubset(ideal Z_2,p) and not isSubset(ideal jacobian ideal Z_2,p)
+-- We consider the inverse map rho of the projection of Z_2 in P^8 from p 
+rho=map(ringP8,ringTarget_2, 
+        sub(transpose(invertBirationalMap(ideal Z_2,gens p))#0,vars ringP8));
+kernel rho == ideal Z_2
+-- We consider the composition beta of rho with eta_2 
+beta=rho*map(ringTarget_2,ringP8,eta_2);
+----------------
+# toString beta
+----------------
+L={ideal(x_1,x_3,x_4,x_5,x_8),
+   ideal(x_0,x_2-x_3,x_4,x_6,x_8),
+   ideal(x_3,x_4,x_6,x_7,x_8)};
+X=baseLocusOfInverseMap(O,beta,L);
+alpha=map(ringP8,ringP8,gens X);
+isInverseMap(matrix beta,matrix alpha)
+----------------
+-- Compose is a routine in bir.m2. It computes the composition 
+-- and removes the fixed component of the linear system
+phi_2=map(ringP8,ringTarget_2,Compose(matrix alpha,matrix rho));
+idealB_2=ideal matrix phi_2;
+-- Saving
+File3 = openOutAppend "equationsOfBj.m2"; 
+File3 <<"idealB_2="<<toString idealB_2<<";"<<endl;
+File3 <<"ringTarget_2=kk[y_0..y_9];"<<endl;
+File3 <<"phi_2=map(ringP8,ringTarget_2,gens idealB_2);"<<endl;
+File3 <<"Z_2="<<toString ideal Z_2<<";"<<endl;
+File3 <<"eta_2=map(ringTarget_2,ringP8,"<<toString eta_2<<");"<<endl;
+close File3;  
+-----------------
+P=saturate (ideal matrix alpha:idealB_2);
+max degrees P == {1} and numgens P == 8
+-----------------
+eta_1=map(ringTarget_1,ringP8,eta_1);
+use ringTarget_1;
+L={ideal(y_0,y_1,y_2,y_3),
+   ideal(y_4,y_5,y_6,y_7),
+   ideal(y_8,y_9,y_10,y_0)};
+idealB_1=baseLocusOfInverseMap(ideal Z_1,eta_1,L);
+phi_1=map(ringP8,ringTarget_1,gens idealB_1);
+-----------------
+Z_1=trim ideal homogPartOfImage(phi_1,2);
+eta_1=invertBirationalMapRS(matrix phi_1,Z_1);
+File3 = openOutAppend "equationsOfBj.m2"; 
+File3 <<"idealB_1="<<toString idealB_1<<";"<<endl;
+File3 <<"ringTarget_1=kk[y_0..y_10];"<<endl;
+File3 <<"phi_1=map(ringP8,ringTarget_1,gens idealB_1);"<<endl;
+File3 <<"Z_1="<<toString Z_1<<";"<<endl;
+File3 <<"eta_1=map(ringTarget_1,ringP8,"<<toString eta_1<<");"<<endl;
+close File3;  
+---------------------
+Eta0=eta_0|Z_0;
+Phi0=invertBirationalMapRS(Eta0,ideal ringTarget_0);
+-- Restricting to a sufficiently general P^8 
+use ringTarget_0;
+subs={y_11=>3*y_8-y_2,
+      y_10=>2*y_6-7*y_5,
+      y_9 =>-y_4+5*y_0}; 
+idealB_0=ideal sub(sub(sub(Phi0,subs),ringTarget_3),vars ringP8);
+phi_0=map(ringP8,ringTarget_0,gens idealB_0);
+Z_0=trim ideal homogPartOfImage(phi_0,2);
+eta_0=invertBirationalMapRS(matrix phi_0,Z_0);
+-- Saving
+File3 = openOutAppend "equationsOfBj.m2"; 
+File3 <<"idealB_0="<<toString idealB_0<<";"<<endl;
+File3 <<"ringTarget_0=kk[y_0..y_11];"<<endl;
+File3 <<"phi_0=map(ringP8,ringTarget_0,gens idealB_0);"<<endl;
+File3 <<"Z_0="<<toString Z_0<<";"<<endl;
+File3 <<"eta_0=map(ringTarget_0,ringP8,"<<toString eta_0<<");"<<endl;
+close File3;  
+----------------
+exit
